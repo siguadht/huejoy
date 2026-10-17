@@ -9,9 +9,23 @@
 
 ## 平台界面
 
-| 首页创作台 | 技能库 | 品牌定稿 |
-|:---:|:---:|:---:|
-| ![](docs/screenshots/home.png) | ![](docs/screenshots/skills.png) | ![](docs/screenshots/brand.png) |
+### 首页创作台
+
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="首页创作台" width="100%">
+</p>
+
+### 技能库
+
+<p align="center">
+  <img src="docs/screenshots/skills.png" alt="技能库" width="100%">
+</p>
+
+### 品牌定稿
+
+<p align="center">
+  <img src="docs/screenshots/brand.png" alt="品牌定稿" width="100%">
+</p>
 
 ## 六阶段流水线
 
