@@ -227,8 +227,9 @@ input, textarea, select { font-family: inherit; font-size: 14px; color: var(--te
 /* 顶栏（窄栏版）：折叠钮 + 面包屑标题 + 右侧操作 */
 .topbar { height: 60px; padding: 0 32px; }
 /* 顶栏面包屑：margin-bottom:0 切断通用 .crumb 的 20px 误伤（flex 居中按 margin box 算，曾致整行偏高 10px）；
-   两级统一 14px，仅颜色+字重分层，消除 13/15px 一高一低 */
-.topbar .crumb { display: flex; align-items: baseline; gap: 9px; font-size: 14px; font-weight: 600; margin-bottom: 0; }
+   两级统一 14px，仅颜色+字重分层，消除 13/15px 一高一低；
+   margin-left:-12px：把「折叠图标→面包屑」间距由统一 gap 28px 收至 16px（图标贴文字），右侧按钮组间距不动 */
+.topbar .crumb { display: flex; align-items: baseline; gap: 9px; font-size: 14px; font-weight: 600; margin-bottom: 0; margin-left: -12px; }
 .topbar .crumb .sep { color: var(--text-3); font-weight: 400; }
 .topbar .crumb .cur { color: var(--text-1); }
 /* 顶栏「开拍」CTA：紧凑黑按钮，与 60px 顶栏相称 */
