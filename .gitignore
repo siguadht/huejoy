@@ -1,0 +1,28 @@
+# ── Python 后端 ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+.venv.broken-from-hu-machine/
+
+# ── 后端运行时产物 ───────────────────────────
+backend/temp/
+backend/code/result/
+
+# ── 密钥：永不入库 ───────────────────────────
+backend/config.yaml
+*.local
+
+# ── Node 前端 ───────────────────────────────
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# ── 旧版备份 ─────────────────────────────────
+_p1-legacy-backup/
+
+# ── 系统杂项 ─────────────────────────────────
+.DS_Store
+Thumbs.db
