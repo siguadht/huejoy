@@ -39,6 +39,44 @@ const COVERS = [
   'linear-gradient(135deg,#F5C4D1,#EC6B9E)',
 ];
 
+/** 六阶段流水线顺序（与后端 stage 键一致） */
+const STAGE_ORDER = [
+  'script_generation',
+  'character_design',
+  'storyboard',
+  'reference_generation',
+  'video_generation',
+  'post_production',
+] as const;
+
+/** 会话阶段状态 → 封面进度段（done=已完成数, current=进行中的段索引, -1=无） */
+function sessionStages(status: any): { total: number; done: number; current: number } {
+  const total = STAGE_ORDER.length;
+  let done = 0;
+  let current = -1;
+  STAGE_ORDER.forEach((key, i) => {
+    if (status?.[key] === 'completed') {
+      done += 1;
+    } else if (current === -1 && status?.[key]) {
+      current = i;
+    }
+  });
+  return { total, done, current: done === total ? -1 : current };
+}
+
+/** 任务进度 → 封面进度段 */
+function taskStages(progress: number | undefined): { total: number; done: number; current: number } {
+  const total = STAGE_ORDER.length;
+  const pct = Math.max(0, Math.min(100, progress ?? 0));
+  const done = Math.round((pct / 100) * total);
+  return { total, done, current: done >= total ? -1 : done };
+}
+
+/** 仅「生成中」的卡片脉冲当前段；已完成/已失败只静态展示进度 */
+function stagesForDisplay(item: CardItem): { total: number; done: number; current: number } {
+  return item.tab === 'running' ? item.stages : { ...item.stages, current: -1 };
+}
+
 interface CardItem {
   key: string;
   /** 原始 id：session_id 或 task_id */
@@ -52,6 +90,8 @@ interface CardItem {
   statusCls: string;
   tab: ItemTab;
   progress?: number;
+  /** 封面六阶段进度段 */
+  stages: { total: number; done: number; current: number };
   href: string;
   sortTs: number;
 }
@@ -118,6 +158,7 @@ export default function ProjectsPage() {
           statusCls: st.cls,
           tab: st.tab,
           progress: sessionProgress(s),
+          stages: sessionStages(s.status ?? {}),
           /* 已完成 → 工作台看真实产物；进行中/失败 → 等待页继续或重跑 */
           href: st.tab === 'done' ? `/studio?session=${s.id}` : `/waiting?session=${s.id}`,
           sortTs: s.date ?? 0,
@@ -140,6 +181,7 @@ export default function ProjectsPage() {
           statusCls: st.cls,
           tab: st.tab,
           progress: st.tab === 'running' || st.tab === 'done' ? progress : undefined,
+          stages: taskStages(progress),
           href: `/skills/${pm.slug}`,
           sortTs: taskTimestamp(t),
         };
@@ -287,7 +329,9 @@ export default function ProjectsPage() {
         )}
 
         {!loading &&
-          visible.map((item) => (
+          visible.map((item) => {
+            const stages = stagesForDisplay(item);
+            return (
             <div
               key={item.key}
               className="card proj-card2"
@@ -302,8 +346,25 @@ export default function ProjectsPage() {
               }}
             >
               <div className="cover" style={{ background: item.cover }}>
-                <Icon name={item.icon} />
-                <span className={`st tag ${item.statusCls}`}>{item.statusLabel}</span>
+                <div className="cover-top">
+                  <span className="cover-ic">
+                    <Icon name={item.icon} />
+                  </span>
+                  <span className={`st tag ${item.statusCls}`}>{item.statusLabel}</span>
+                </div>
+                <div className="cover-foot">
+                  <div className="cover-stages" aria-hidden>
+                    {Array.from({ length: stages.total }, (_, i) => (
+                      <i
+                        key={i}
+                        className={i < stages.done ? 'on' : i === stages.current ? 'cur' : ''}
+                      />
+                    ))}
+                  </div>
+                  <span className="cover-n">
+                    {stages.done}/{stages.total}
+                  </span>
+                </div>
                 <button
                   type="button"
                   className="del"
@@ -328,7 +389,8 @@ export default function ProjectsPage() {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
       </div>
     </>
   );

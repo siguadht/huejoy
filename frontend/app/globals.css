@@ -224,7 +224,7 @@ input, textarea, select { font-family: inherit; font-size: 14px; color: var(--te
 .side-user .uplan { display: block; font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* 顶栏（窄栏版）：折叠钮 + 面包屑标题 + 右侧操作 */
 .topbar { height: 60px; padding: 0 32px; }
-.topbar .crumb { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; }
+.topbar .crumb { display: flex; align-items: baseline; gap: 9px; font-size: 15px; font-weight: 600; }
 .topbar .crumb .sep { color: var(--text-3); font-weight: 400; font-size: 13px; }
 .topbar .crumb .cur { color: var(--text-1); }
 /* 顶栏「开拍」CTA：紧凑黑按钮，与 60px 顶栏相称 */
@@ -487,9 +487,17 @@ main.container:has(> .studio-page) { max-width: none; padding: 0; }
   .proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
   .proj-card2 { overflow: hidden; transition: all .18s; cursor: pointer; }
   .proj-card2:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); }
-  .proj-card2 .cover { height: 160px; display: flex; align-items: center; justify-content: center; color: #fff; position: relative; }
-  .proj-card2 .cover .st { position: absolute; top: 10px; left: 10px; }
-  .proj-card2 .cover .ic { width: 42px; height: 42px; opacity: .95; }
+  .proj-card2 .cover { height: 140px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; position: relative; }
+  .proj-card2 .cover-top { display: flex; align-items: center; gap: 10px; }
+  .proj-card2 .cover-ic { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; color: #fff; flex: none; }
+  .proj-card2 .cover-ic .ic { width: 22px; height: 22px; }
+  .proj-card2 .cover-foot { display: flex; align-items: center; gap: 12px; }
+  .proj-card2 .cover-stages { display: flex; gap: 5px; flex: 1; }
+  .proj-card2 .cover-stages i { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.3); }
+  .proj-card2 .cover-stages i.on { background: rgba(255,255,255,.95); }
+  .proj-card2 .cover-stages i.cur { background: #fff; animation: stage-pulse 1.5s ease-in-out infinite; }
+  .proj-card2 .cover-n { font-size: 11px; color: rgba(255,255,255,.85); font-variant-numeric: tabular-nums; flex: none; }
+  @keyframes stage-pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
   .proj-card2 .body { padding: 18px 20px; }
   .proj-card2 h4 { font-size: 15px; font-weight: 600; }
   .proj-card2 .meta { font-size: 12px; color: var(--text-3); margin: 4px 0 10px; }
