@@ -17,7 +17,7 @@ class ConfigUpdateRequest(BaseModel):
 async def get_config():
     return {
         "config": Config.as_public_dict(),
-        "path": "backend/config.yaml",
+        "path": "backend/config.yaml（密钥来自 backend/.env，环境变量优先）",
     }
 
 
@@ -28,5 +28,5 @@ async def update_config(req: ConfigUpdateRequest):
     apply_access_log_setting()
     return {
         "config": Config.as_public_dict(),
-        "path": "backend/config.yaml",
+        "path": "backend/config.yaml（密钥来自 backend/.env，环境变量优先）",
     }

@@ -3,7 +3,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 
 import yaml
 
@@ -21,7 +21,106 @@ SECRET_PATHS = (
     "api_providers.ark.api_key",
     "api_providers.kling.access_key",
     "api_providers.kling.secret_key",
+    "api_providers.tokenplus.api_key",
+    "api_providers.minimax.api_key",
 )
+
+# ---------- .env 支持：密钥与供应商配置的环境变量覆盖层 ----------
+# 优先级：环境变量（含 .env）> backend/config.yaml。
+# .env 是密钥的唯一真源；config.yaml 只保留非敏感配置，密钥位留空。
+ENV_PATH = BASE_DIR / ".env"
+
+# 环境变量前缀 → config.yaml 中 api_providers.<provider> 键
+ENV_PROVIDER_PREFIXES: Dict[str, str] = {
+    "OPENAI": "openai",
+    "GEMINI": "gemini",
+    "DEEPSEEK": "deepseek",
+    "DASHSCOPE": "dashscope",
+    "ARK": "ark",
+    "KLING": "kling",
+    "TOKENPLUS": "tokenplus",
+    "MINIMAX": "minimax",
+}
+
+# 环境变量字段后缀 → provider 配置内的字段名
+ENV_FIELD_SUFFIXES: Dict[str, str] = {
+    "API_KEY": "api_key",
+    "ACCESS_KEY": "access_key",
+    "SECRET_KEY": "secret_key",
+    "BASE_URL": "base_url",
+    "ENABLE_PROXY": "enable_proxy",
+}
+
+# 本次进程中被环境变量覆盖的配置路径 → 对应的环境变量名（保存时回写/剥离用）
+_ENV_OVERRIDES: Dict[str, str] = {}
+
+
+def _load_dotenv(path: Path = ENV_PATH) -> Dict[str, str]:
+    """极简 .env 解析：KEY=VALUE，支持 # 注释与成对引号；不引入第三方依赖。"""
+    if not path.exists():
+        return {}
+    values: Dict[str, str] = {}
+    with path.open("r", encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            if not key:
+                continue
+            value = value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
+                value = value[1:-1]
+            values[key] = value
+    return values
+
+
+def _sync_dotenv(updates: Dict[str, str], removals: Iterable[str] = ()) -> None:
+    """把变更写回 .env 文件并同步进程环境（KEY 存在则替换，否则追加）。"""
+    env = _load_dotenv()
+    env.update(updates)
+    for key in removals:
+        env.pop(key, None)
+    lines = [
+        "# 雀跃 HueJoy 供应商密钥（.env 为密钥唯一真源，环境变量覆盖 config.yaml）",
+        "# 命名规则：<供应商>_API_KEY / <供应商>_BASE_URL / <供应商>_ENABLE_PROXY；可灵用 ACCESS_KEY/SECRET_KEY",
+    ]
+    lines += [f"{k}={v}" for k, v in env.items() if not k.startswith("#")]
+    ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    for key, value in env.items():
+        if key.startswith("#"):
+            continue
+        os.environ[key] = value
+    for key in removals:
+        os.environ.pop(key, None)
+
+
+def _apply_env_overrides(config: Dict[str, Any]) -> Dict[str, Any]:
+    """环境变量覆盖 config.yaml 同名供应商配置（.env 与系统环境变量均生效，环境优先）。"""
+    providers = config.get("api_providers")
+    if not isinstance(providers, dict):
+        return config
+    for prefix, provider in ENV_PROVIDER_PREFIXES.items():
+        provider_cfg = providers.get(provider)
+        if not isinstance(provider_cfg, dict):
+            continue
+        for suffix, field in ENV_FIELD_SUFFIXES.items():
+            var = f"{prefix}_{suffix}"
+            raw = os.environ.get(var)
+            if raw is None or raw == "":
+                continue
+            provider_cfg[field] = _as_bool(raw) if field == "enable_proxy" else raw
+            _ENV_OVERRIDES[f"api_providers.{provider}.{field}"] = var
+    return config
+
+
+def _strip_env_overrides(values: Dict[str, Any]) -> Dict[str, Any]:
+    """保存前剥离环境变量覆盖项：yaml 文件里只留非敏感配置，避免密钥二次落盘。"""
+    clean = copy.deepcopy(values)
+    for path in _ENV_OVERRIDES:
+        _set(clean, path, False if path.endswith("enable_proxy") else "")
+    return clean
 
 DEFAULT_CONFIG: Dict[str, Any] = {
     "project_name": "XiaoYunQue",
@@ -216,27 +315,44 @@ def _normalize_log_level(value: Any, legacy_debug: Any = None) -> str:
 
 
 def load_config() -> Dict[str, Any]:
+    # .env 注入进程环境（不覆盖已有环境变量），使环境变量覆盖层生效
+    for key, value in _load_dotenv().items():
+        os.environ.setdefault(key, value)
     if not CONFIG_PATH.exists():
         source = CONFIG_EXAMPLE_PATH if CONFIG_EXAMPLE_PATH.exists() else None
         if source:
             with source.open("r", encoding="utf-8") as f:
                 loaded = yaml.safe_load(f) or {}
-            return _coerce_config(loaded)
-        return copy.deepcopy(DEFAULT_CONFIG)
+            return _apply_env_overrides(_coerce_config(loaded))
+        return _apply_env_overrides(copy.deepcopy(DEFAULT_CONFIG))
 
     with CONFIG_PATH.open("r", encoding="utf-8") as f:
         loaded = yaml.safe_load(f) or {}
     if not isinstance(loaded, dict):
         raise ValueError("backend/config.yaml must contain a YAML mapping.")
-    return _coerce_config(loaded)
+    return _apply_env_overrides(_coerce_config(loaded))
 
 
 def save_config(values: Dict[str, Any]) -> Dict[str, Any]:
     clean = _coerce_config(values)
+    # 设置页若改了被 .env 托管的字段：写穿回 .env（密钥唯一真源仍是 .env）
+    env_updates: Dict[str, str] = {}
+    env_removals: list = []
+    for path, var in _ENV_OVERRIDES.items():
+        incoming = _get(clean, path, "")
+        if incoming == "" or incoming == SECRET_MASK:
+            if incoming == "" and os.environ.get(var):
+                env_removals.append(var)
+            continue
+        if incoming != os.environ.get(var):
+            env_updates[var] = str(incoming)
+    if env_updates or env_removals:
+        _sync_dotenv(env_updates, env_removals)
+        _apply_env_overrides(clean)
     fd, temp_path = tempfile.mkstemp(dir=CONFIG_PATH.parent, prefix="config.", suffix=".yaml.tmp")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
-            yaml.safe_dump(clean, f, allow_unicode=True, sort_keys=False)
+            yaml.safe_dump(_strip_env_overrides(clean), f, allow_unicode=True, sort_keys=False)
         os.replace(temp_path, CONFIG_PATH)
     except Exception:
         if os.path.exists(temp_path):

@@ -190,7 +190,7 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       {backendUp === false && (
         <div className="notice" style={{ marginBottom: 16 }}>
           <Icon name="alert" className="ic ic-sm" />
@@ -306,7 +306,7 @@ export default function HomePage() {
         {backendUp === false && runningProjects.map((project) => (
           <div key={project.id} className="card proj-card hoverable">
             <div className="proj-cover" style={{ background: project.cover }}>
-              <Icon name={project.icon} style={{ width: 30, height: 30 }} />
+              <Icon name={project.icon} style={{ width: 38, height: 38 }} />
             </div>
             <div className="info">
               <h4>
@@ -332,7 +332,7 @@ export default function HomePage() {
         {backendUp === true && activeItems.map((item) => (
           <div key={item.key} className="card proj-card hoverable">
             <div className="proj-cover" style={{ background: item.cover }}>
-              <Icon name={item.icon} style={{ width: 30, height: 30 }} />
+              <Icon name={item.icon} style={{ width: 38, height: 38 }} />
             </div>
             <div className="info">
               <h4>

@@ -48,7 +48,8 @@
 cd backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp config.yaml.example config.yaml   # 填入各家 API Key
+cp .env.example .env               # 填入各家 API Key（密钥放这里）
+cp config.yaml.example config.yaml # 非敏感配置（模型选择等）
 python api_server.py
 ```
 
@@ -65,7 +66,14 @@ npm start
 
 ## 配置
 
-所有 API Key 集中在 `backend/config.yaml`（模板见 `config.yaml.example`）。该文件已被 `.gitignore` 排除，不会上传，请自行保管。
+密钥统一放在 `backend/.env`（模板见 `.env.example`），环境变量优先于 `config.yaml`——`.env` 是密钥唯一真源，`config.yaml` 只留模型选择等非敏感配置。两个文件均已被 `.gitignore` 排除，不会上传。
+
+```bash
+cd backend
+cp .env.example .env   # 填入各家 API Key
+```
+
+命名规则：`<供应商>_API_KEY` / `<供应商>_BASE_URL` / `<供应商>_ENABLE_PROXY`（可灵用 `KLING_ACCESS_KEY` / `KLING_SECRET_KEY`），支持 OpenAI、Gemini、DeepSeek、DashScope、Ark、可灵、TokenPlus、MiniMax 八家。在设置页修改密钥会写穿回 `.env`，Docker / CI 里也可直接用环境变量注入。
 
 | 配置 | 用途 |
 |---|---|

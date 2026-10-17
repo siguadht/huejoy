@@ -341,11 +341,11 @@ function RealWaiting({ sessionId }: RealWaitingProps) {
   )[0];
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       {/* ===== 等待头部 ===== */}
       <div className="card wait-head">
         <div className="wait-cover">
-          <Icon name="film" style={{ width: 34, height: 34 }} />
+          <Icon name="film" style={{ width: 40, height: 40 }} />
         </div>
         <div className="info">
           <h1>
@@ -775,11 +775,11 @@ function DemoWaiting() {
   const ss = String(etaSec % 60).padStart(2, '0');
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       {/* ===== 等待头部：ETA + 可控操作 ===== */}
       <div className="card wait-head">
         <div className="wait-cover">
-          <Icon name="film" style={{ width: 34, height: 34 }} />
+          <Icon name="film" style={{ width: 40, height: 40 }} />
         </div>
         <div className="info">
           <h1>

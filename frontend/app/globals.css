@@ -150,13 +150,13 @@ input, textarea, select { font-family: inherit; font-size: 14px; color: var(--te
 .field .hint { font-size: 12px; color: var(--text-3); margin-top: 6px; }
 
 /* ---------- 技能卡片 ---------- */
-.skill-card { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-l); padding: 20px; box-shadow: var(--shadow-1); transition: all .18s; cursor: pointer; position: relative; }
+.skill-card { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-l); padding: 24px; box-shadow: var(--shadow-1); transition: all .18s; cursor: pointer; position: relative; }
 .skill-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); border-color: var(--border-strong); }
-.skill-tile { width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; transition: transform .18s; }
+.skill-tile { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; transition: transform .18s; }
 .skill-card:hover .skill-tile { transform: scale(1.08) rotate(-4deg); }
-.skill-tile .ic { width: 22px; height: 22px; }
-.skill-card h3 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.skill-card .desc { font-size: 13px; color: var(--text-2); margin: 7px 0 12px; min-height: 40px; }
+.skill-tile .ic { width: 26px; height: 26px; }
+.skill-card h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.skill-card .desc { font-size: 13.5px; color: var(--text-2); margin: 8px 0 14px; min-height: 44px; }
 .skill-card .meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
 .skill-card .badge-new { position: absolute; top: 16px; right: 16px; }
 
@@ -180,12 +180,24 @@ input, textarea, select { font-family: inherit; font-size: 14px; color: var(--te
 .footer { border-top: 1px solid var(--border); padding: 28px 32px; color: var(--text-3); font-size: 12px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 
 /* ---------- 响应式 ---------- */
+/* 宽屏放大：卡片列数随视口收缩，保证每张卡不低于 ~290px，不再往中间挤 */
+@media (max-width: 1500px) {
+  .grid-4 { grid-template-columns: repeat(3,1fr); }
+}
+@media (max-width: 1240px) {
+  .grid-4 { grid-template-columns: repeat(2,1fr); }
+  .grid-3 { grid-template-columns: repeat(2,1fr); }
+  .container { padding: 32px 28px 80px; }
+}
 @media (max-width: 960px) {
   .grid-4 { grid-template-columns: repeat(2,1fr); }
   .grid-3 { grid-template-columns: repeat(2,1fr); }
   .topbar { padding: 0 16px; gap: 14px; }
   .nav a { padding: 6px 10px; font-size: 13px; }
   .container { padding: 24px 16px 60px; }
+}
+@media (max-width: 640px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
 }
 
 /* ============ v0.8 侧边栏骨架 ============ */
@@ -299,8 +311,8 @@ main.container:has(> .studio-page) { max-width: none; padding: 0; }
   .skill-hero-body .flow { grid-area: flow; }
   .skill-hero-body .meta { grid-area: meta; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
   .skill-hero-cta { grid-area: cta; justify-self: start; margin-top: 4px; background: var(--text-1); color: #fff; font-size: 13px; font-weight: 500; padding: 9px 20px; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 6px; }
-  .skill-tile-lg { width: 72px; height: 72px; border-radius: var(--radius-l); }
-  .skill-tile-lg .ic { width: 34px; height: 34px; }
+  .skill-tile-lg { width: 88px; height: 88px; border-radius: var(--radius-l); }
+  .skill-tile-lg .ic { width: 40px; height: 40px; }
   @media (max-width: 960px) {
     .skill-hero-body { grid-template-columns: 1fr; grid-template-areas: "tile" "head" "desc" "flow" "meta" "cta"; row-gap: 10px; }
     .skill-hero-body .skill-tile { justify-self: start; }
@@ -472,14 +484,14 @@ main.container:has(> .studio-page) { max-width: none; padding: 0; }
   .refresh-btn { width: 40px; height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-full); flex: none; }
   .refresh-btn.spinning .ic { animation: spin 1s linear infinite; }
   .refresh-ts { font-size: 12px; color: var(--text-3); white-space: nowrap; }
-  .proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
   .proj-card2 { overflow: hidden; transition: all .18s; cursor: pointer; }
   .proj-card2:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); }
-  .proj-card2 .cover { height: 120px; display: flex; align-items: center; justify-content: center; color: #fff; position: relative; }
+  .proj-card2 .cover { height: 160px; display: flex; align-items: center; justify-content: center; color: #fff; position: relative; }
   .proj-card2 .cover .st { position: absolute; top: 10px; left: 10px; }
-  .proj-card2 .cover .ic { width: 34px; height: 34px; opacity: .95; }
-  .proj-card2 .body { padding: 14px 16px; }
-  .proj-card2 h4 { font-size: 14px; font-weight: 600; }
+  .proj-card2 .cover .ic { width: 42px; height: 42px; opacity: .95; }
+  .proj-card2 .body { padding: 18px 20px; }
+  .proj-card2 h4 { font-size: 15px; font-weight: 600; }
   .proj-card2 .meta { font-size: 12px; color: var(--text-3); margin: 4px 0 10px; }
   /* 删除按钮：44px 触控目标；悬停设备 hover 才显，触屏常显 */
   .proj-card2 .cover .del { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border: 0; border-radius: 12px; background: rgba(255,255,255,.18); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: .55; transition: all .18s; }
@@ -505,7 +517,7 @@ main.container:has(> .studio-page) { max-width: none; padding: 0; }
 /* ===== 页面样式 · waiting（源自 waiting.html） ===== */
 /* ============ 等待体验 · 生成中 演示页 ============ */
   .wait-head { display: flex; gap: 20px; padding: 22px; align-items: flex-start; margin-top: 8px; }
-  .wait-cover { width: 92px; height: 92px; border-radius: var(--radius-m); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg,#B9A8F0,#6E56CF); position: relative; overflow: hidden; }
+  .wait-cover { width: 120px; height: 120px; border-radius: var(--radius-l); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg,#B9A8F0,#6E56CF); position: relative; overflow: hidden; }
   .wait-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.35) 50%, transparent 60%); animation: shimmer 2.6s infinite; }
   .wait-head .info { flex: 1; min-width: 0; }
   .wait-head h1 { font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

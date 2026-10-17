@@ -12,7 +12,10 @@ backend/code/result/
 
 # ── 密钥：永不入库 ───────────────────────────
 backend/config.yaml
+backend/.env
+.env
 *.local
+!.env.example
 
 # ── Node 前端 ───────────────────────────────
 node_modules/
