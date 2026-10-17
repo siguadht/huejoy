@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   if (skill.backend.kind === 'none') {
     const alternatives = SKILLS.filter((s) => s.backend.kind !== 'none' && s.slug !== skill.slug).slice(0, 4);
     return (
-      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+      <div>
         <div className="skill-head">
           <div className="tile"><Icon name={skill.icon} /></div>
           <div>
@@ -71,7 +71,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       ['后期剪辑', '拼接、配乐、字幕，出成片'],
     ];
     return (
-      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+      <div>
         <div className="skill-head">
           <div className="tile"><Icon name={skill.icon} /></div>
           <div>
@@ -110,7 +110,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   /* ---- 一键短流程技能：真实表单 + 真实任务 ---- */
   const form = getSkillForm(skill.slug);
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       <div className="skill-head">
         <div className="tile"><Icon name={skill.icon} /></div>
         <div>

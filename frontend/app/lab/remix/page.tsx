@@ -93,7 +93,7 @@ export default function RemixPage() {
     picked === 1 ? 'char' : picked === 2 ? 'scene' : picked === 3 ? 'board' : null;
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       <div className="page-head">
         <h1>
           Remix 工作台{' '}

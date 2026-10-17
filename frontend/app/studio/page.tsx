@@ -27,21 +27,6 @@ import {
 
 /* ============ 工具 ============ */
 
-const COVERS = [
-  'linear-gradient(135deg,#B9A8F0,#6E56CF)',
-  'linear-gradient(135deg,#9BD4FF,#3AA7F5)',
-  'linear-gradient(135deg,#A8E6CF,#1FA98C)',
-  'linear-gradient(135deg,#F5C4D1,#EC6B9E)',
-  'linear-gradient(135deg,#FFD9A8,#F5A623)',
-  'linear-gradient(135deg,#C7B8F5,#8B5CF6)',
-];
-
-function coverFor(key: string): string {
-  let h = 0;
-  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 997;
-  return COVERS[h % COVERS.length];
-}
-
 function fmtTime(v: any): string {
   if (!v) return '';
   const d = typeof v === 'number' ? new Date(v * 1000) : new Date(v);
@@ -154,18 +139,20 @@ function StudioPicker() {
             const st = deriveSessionStatus(s.status ?? {});
             return (
               <Link key={s.id} href={`/studio?session=${s.id}`} className="card proj-card2 hoverable">
-                <div className="cover" style={{ background: coverFor(s.id) }}>
-                  <span className={`tag ${st.cls} st`}>{st.label}</span>
-                  <Icon name="film" />
+                <div className="pc-head">
+                  <span className="pc-ic">
+                    <Icon name="film" />
+                  </span>
+                  <div className="pc-title">
+                    <h4>{sessionTitle(s)}</h4>
+                    <div className="meta">
+                      {sessionStageName(s)} · {fmtTime(s.updated_at ?? s.date)}
+                    </div>
+                  </div>
+                  <span className={`tag ${st.cls} pc-st`}>{st.label}</span>
                 </div>
-                <div className="body">
-                  <h4>{sessionTitle(s)}</h4>
-                  <div className="meta">
-                    {sessionStageName(s)} · {fmtTime(s.updated_at ?? s.date)}
-                  </div>
-                  <div className={`progress${st.tab === 'running' ? ' live' : ''}`}>
-                    <div style={{ width: `${sessionProgress(s)}%` }} />
-                  </div>
+                <div className={`progress${st.tab === 'running' ? ' live' : ''}`}>
+                  <div style={{ width: `${sessionProgress(s)}%` }} />
                 </div>
               </Link>
             );

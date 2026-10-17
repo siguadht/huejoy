@@ -159,7 +159,7 @@ export default function SettingsPage() {
     <div style={{ maxWidth: 860, margin: '0 auto' }}>
       <div className="page-head">
         <h1>设置</h1>
-        <p className="sub">模型 Key、默认模型与生成偏好——保存在后端 config.yaml，重启不丢失。</p>
+        <p className="sub">密钥保存于后端 .env（环境变量优先，覆盖 config.yaml），模型与偏好存 config.yaml，重启不丢失。</p>
       </div>
 
       {/* ===== 后端连接状态 ===== */}
@@ -190,7 +190,7 @@ export default function SettingsPage() {
       <div className="card panel" style={{ marginBottom: 16 }}>
         <h3><Icon name="settings" />API Key</h3>
         <p className="desc" style={{ margin: '6px 0 12px' }}>
-          Key 只写入本机后端的 config.yaml，不会上传到任何第三方。已配置的 Key 显示为 {SECRET_MASK}，留空即保持原值。
+          Key 只写入本机后端的 .env 文件，不会上传到任何第三方。已配置的 Key 显示为 {SECRET_MASK}，留空即保持原值。
         </p>
         {PROVIDERS.map((p) => (
           <div key={p.key} style={{ borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 12 }}>

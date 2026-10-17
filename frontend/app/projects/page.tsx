@@ -31,14 +31,6 @@ const PIPELINE_META: Record<string, { label: string; icon: IconName; slug: strin
   action_transfer: { label: '动作迁移', icon: 'refresh', slug: 'motion-transfer' },
 };
 
-const COVERS = [
-  'linear-gradient(135deg,#B9A8F0,#6E56CF)',
-  'linear-gradient(135deg,#C7B8F5,#8B5CF6)',
-  'linear-gradient(135deg,#A8E6CF,#1FA98C)',
-  'linear-gradient(135deg,#9BD4FF,#3AA7F5)',
-  'linear-gradient(135deg,#F5C4D1,#EC6B9E)',
-];
-
 /** 六阶段流水线顺序（与后端 stage 键一致） */
 const STAGE_ORDER = [
   'script_generation',
@@ -49,7 +41,7 @@ const STAGE_ORDER = [
   'post_production',
 ] as const;
 
-/** 会话阶段状态 → 封面进度段（done=已完成数, current=进行中的段索引, -1=无） */
+/** 会话阶段状态 → 卡片进度段（done=已完成数, current=进行中的段索引, -1=无） */
 function sessionStages(status: any): { total: number; done: number; current: number } {
   const total = STAGE_ORDER.length;
   let done = 0;
@@ -64,7 +56,7 @@ function sessionStages(status: any): { total: number; done: number; current: num
   return { total, done, current: done === total ? -1 : current };
 }
 
-/** 任务进度 → 封面进度段 */
+/** 任务进度 → 卡片进度段 */
 function taskStages(progress: number | undefined): { total: number; done: number; current: number } {
   const total = STAGE_ORDER.length;
   const pct = Math.max(0, Math.min(100, progress ?? 0));
@@ -84,13 +76,12 @@ interface CardItem {
   kind: 'session' | 'task';
   name: string;
   meta: string;
-  cover: string;
   icon: IconName;
   statusLabel: string;
   statusCls: string;
   tab: ItemTab;
   progress?: number;
-  /** 封面六阶段进度段 */
+  /** 卡片六阶段进度段 */
   stages: { total: number; done: number; current: number };
   href: string;
   sortTs: number;
@@ -143,7 +134,7 @@ export default function ProjectsPage() {
     try {
       const [sessions, tasks] = await Promise.all([fetchSessions(), fetchPipelineTasks()]);
 
-      const sessionItems: CardItem[] = sessions.map((s: any, i: number) => {
+      const sessionItems: CardItem[] = sessions.map((s: any) => {
         const st = deriveSessionStatus(s.status ?? {});
         const style = s.meta?.style || s.style || '默认风格';
         return {
@@ -152,7 +143,6 @@ export default function ProjectsPage() {
           kind: 'session' as const,
           name: sessionTitle(s),
           meta: `短片创作 · ${style} · ${sessionStageName(s)} · ${fmtDate(s.date ?? 0)}`,
-          cover: COVERS[i % COVERS.length],
           icon: 'film' as IconName,
           statusLabel: st.label,
           statusCls: st.cls,
@@ -165,7 +155,7 @@ export default function ProjectsPage() {
         };
       });
 
-      const taskItems: CardItem[] = tasks.map((t, i: number) => {
+      const taskItems: CardItem[] = tasks.map((t) => {
         const st = taskTab(t);
         const pm = PIPELINE_META[t.pipeline] ?? { label: t.pipeline, icon: 'zap' as IconName, slug: 'skills' };
         const progress = typeof t.progress === 'number' ? t.progress : undefined;
@@ -175,7 +165,6 @@ export default function ProjectsPage() {
           kind: 'task' as const,
           name: t.input?.title || t.input?.idea || `${pm.label}任务`,
           meta: `${pm.label} · ${fmtDate(taskTimestamp(t))}`,
-          cover: COVERS[(i + 2) % COVERS.length],
           icon: pm.icon,
           statusLabel: st.label,
           statusCls: st.cls,
@@ -345,26 +334,15 @@ export default function ProjectsPage() {
                 }
               }}
             >
-              <div className="cover" style={{ background: item.cover }}>
-                <div className="cover-top">
-                  <span className="cover-ic">
-                    <Icon name={item.icon} />
-                  </span>
-                  <span className={`st tag ${item.statusCls}`}>{item.statusLabel}</span>
+              <div className="pc-head">
+                <span className="pc-ic">
+                  <Icon name={item.icon} />
+                </span>
+                <div className="pc-title">
+                  <h4>{item.name}</h4>
+                  <div className="meta">{item.meta}</div>
                 </div>
-                <div className="cover-foot">
-                  <div className="cover-stages" aria-hidden>
-                    {Array.from({ length: stages.total }, (_, i) => (
-                      <i
-                        key={i}
-                        className={i < stages.done ? 'on' : i === stages.current ? 'cur' : ''}
-                      />
-                    ))}
-                  </div>
-                  <span className="cover-n">
-                    {stages.done}/{stages.total}
-                  </span>
-                </div>
+                <span className={`tag ${item.statusCls} pc-st`}>{item.statusLabel}</span>
                 <button
                   type="button"
                   className="del"
@@ -379,15 +357,24 @@ export default function ProjectsPage() {
                   <Icon name="trash" className="ic ic-sm" />
                 </button>
               </div>
-              <div className="body">
-                <h4>{item.name}</h4>
-                <div className="meta">{item.meta}</div>
-                {typeof item.progress === 'number' && (
-                  <div className="progress">
-                    <div style={{ width: `${item.progress}%` }} />
-                  </div>
-                )}
+              <div className="pc-foot">
+                <div className="cover-stages" aria-hidden>
+                  {Array.from({ length: stages.total }, (_, i) => (
+                    <i
+                      key={i}
+                      className={i < stages.done ? 'on' : i === stages.current ? 'cur' : ''}
+                    />
+                  ))}
+                </div>
+                <span className="cover-n">
+                  {stages.done}/{stages.total}
+                </span>
               </div>
+              {typeof item.progress === 'number' && (
+                <div className={`progress${item.tab === 'running' ? ' live' : ''}`}>
+                  <div style={{ width: `${item.progress}%` }} />
+                </div>
+              )}
             </div>
             );
           })}

@@ -345,7 +345,7 @@ function RealWaiting({ sessionId }: RealWaitingProps) {
       {/* ===== 等待头部 ===== */}
       <div className="card wait-head">
         <div className="wait-cover">
-          <Icon name="film" style={{ width: 40, height: 40 }} />
+          <Icon name="film" style={{ width: 28, height: 28 }} />
         </div>
         <div className="info">
           <h1>

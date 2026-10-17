@@ -41,12 +41,6 @@ const PIPELINE_META: Record<string, { label: string; icon: IconName; slug: strin
   action_transfer: { label: '动作迁移', icon: 'refresh', slug: 'motion-transfer' },
 };
 
-const TASK_COVERS = [
-  'linear-gradient(135deg,#C7B8F5,#8B5CF6)',
-  'linear-gradient(135deg,#A8E6CF,#1FA98C)',
-  'linear-gradient(135deg,#9BD4FF,#3AA7F5)',
-];
-
 /** 首页「进行中的项目」统一卡片模型 */
 interface ActiveItem {
   key: string;
@@ -56,7 +50,6 @@ interface ActiveItem {
   meta: string;
   progress: number;
   live: boolean;
-  cover: string;
   icon: IconName;
   href: string;
   action: string;
@@ -115,7 +108,6 @@ export default function HomePage() {
           meta: `短片创作 · ${sessionStageName(s)}`,
           progress: sessionProgress(s),
           live: st.label === '生成中',
-          cover: 'linear-gradient(135deg,#B9A8F0,#6E56CF)',
           icon: 'film',
           href: `/waiting?session=${s.id}`,
           action: st.label === '待确认' ? '去确认' : '进入',
@@ -124,7 +116,7 @@ export default function HomePage() {
       });
       tasks
         .filter((t) => t.status === 'running' || t.status === 'pending')
-        .forEach((t, i) => {
+        .forEach((t) => {
           const pm = PIPELINE_META[t.pipeline] ?? { label: t.pipeline, icon: 'zap' as IconName, slug: 'skills' };
           const ts = t.created_at ? new Date(t.created_at).getTime() / 1000 : 0;
           items.push({
@@ -135,7 +127,6 @@ export default function HomePage() {
             meta: pm.label,
             progress: typeof t.progress === 'number' ? t.progress : 0,
             live: t.status === 'running',
-            cover: TASK_COVERS[i % TASK_COVERS.length],
             icon: pm.icon,
             href: `/skills/${pm.slug}`,
             action: '进入',
@@ -305,8 +296,8 @@ export default function HomePage() {
         {/* 后端不可达：演示数据兜底（顶部已有诚实提示条） */}
         {backendUp === false && runningProjects.map((project) => (
           <div key={project.id} className="card proj-card hoverable">
-            <div className="proj-cover" style={{ background: project.cover }}>
-              <Icon name={project.icon} style={{ width: 38, height: 38 }} />
+            <div className="proj-cover">
+              <Icon name={project.icon} style={{ width: 32, height: 32 }} />
             </div>
             <div className="info">
               <h4>
@@ -331,8 +322,8 @@ export default function HomePage() {
         {/* 后端可达：真实活跃会话 + 运行中技能任务 */}
         {backendUp === true && activeItems.map((item) => (
           <div key={item.key} className="card proj-card hoverable">
-            <div className="proj-cover" style={{ background: item.cover }}>
-              <Icon name={item.icon} style={{ width: 38, height: 38 }} />
+            <div className="proj-cover">
+              <Icon name={item.icon} style={{ width: 32, height: 32 }} />
             </div>
             <div className="info">
               <h4>

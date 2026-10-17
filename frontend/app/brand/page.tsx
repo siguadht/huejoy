@@ -9,7 +9,7 @@ export default function BrandPage() {
   const [demoSwitch, setDemoSwitch] = useState(true);
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div>
       <section className="hero">
         <span className="kicker">
           <Icon name="wand" className="ic ic-sm" />小云雀开源项目 → 属于你的产品 · 品牌定稿 v0.9++
